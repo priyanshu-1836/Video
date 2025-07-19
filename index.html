@@ -1,1831 +1,605 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VideoFlow Pro - Offline Video Platform</title>
-    <meta name="theme-color" content="#667eea">
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiVmlkZW9GbG93IFBybyIsInNob3J0X25hbWUiOiJWaWRlb0Zsb3ciLCJzdGFydF91cmwiOiIuLyIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiM2NjdlZWEiLCJ0aGVtZV9jb2xvciI6IiM2NjdlZWEiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCM2FXUjBhRDBpTVRJNElpQm9aV2xuYUhROUlqRXlPQ0lpSUdobGJHNXpQU0pvZEhSd09pOHZkM2QzTG5jekxtOXlaeTh5TURBd0wzTjJaeUkrUEdOcGNtTnNaU0JqZUQwaU5qUWlJR041UFNJM05DSWljajBpTkRBaUlHWnBiR3c5SWlNMk5qZGxaV0VpTHo0OEwzTjJaejQ9Iiwic2l6ZXMiOiIxMjh4MTI4IiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
-    <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            --offline-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-            --about-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-            --glass-bg: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --text-light: #ffffff;
-            --text-dark: #333333;
-            --shadow-soft: 0 8px 32px rgba(31, 38, 135, 0.37);
-            --shadow-hover: 0 15px 35px rgba(31, 38, 135, 0.4);
-            --blur-amount: 16px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', 'SF Pro Display', system-ui, -apple-system, sans-serif;
-            background: var(--primary-gradient);
-            min-height: 100vh;
-            color: var(--text-light);
-            overflow-x: hidden;
-        }
-
-        /* Glass Morphism Effect */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(var(--blur-amount));
-            -webkit-backdrop-filter: blur(var(--blur-amount));
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            box-shadow: var(--shadow-soft);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .glass-card:hover {
-            box-shadow: var(--shadow-hover);
-            transform: translateY(-5px);
-        }
-
-        /* Offline Status Indicator */
-        .offline-indicator {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--offline-gradient);
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-size: 14px;
-            font-weight: 600;
-            z-index: 1000;
-            display: none;
-            animation: pulse 2s infinite;
-        }
-
-        .offline-indicator.show {
-            display: block;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.8; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.05); }
-        }
-
-        .online-indicator {
-            background: var(--success-gradient);
-        }
-
-        /* Modern Container */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-            position: relative;
-        }
-
-        /* Animated Background Elements */
-        .bg-decoration {
-            position: fixed;
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: var(--secondary-gradient);
-            opacity: 0.1;
-            animation: float 6s ease-in-out infinite;
-            z-index: -1;
-        }
-
-        .bg-decoration:nth-child(1) {
-            top: 10%;
-            left: 80%;
-            animation-delay: 0s;
-        }
-
-        .bg-decoration:nth-child(2) {
-            bottom: 20%;
-            left: 10%;
-            animation-delay: 2s;
-        }
-
-        .bg-decoration:nth-child(3) {
-            top: 60%;
-            right: 15%;
-            animation-delay: 4s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
-        }
-
-        /* Header Section */
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 40px 20px;
-            position: relative;
-        }
-
-        .header h1 {
-            font-size: clamp(2.5rem, 5vw, 4rem);
-            font-weight: 800;
-            background: linear-gradient(45deg, #fff, #f0f0f0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 15px;
-            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-
-        .pwa-badge {
-            display: inline-block;
-            background: var(--success-gradient);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-left: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        @keyframes glow {
-            from { filter: drop-shadow(0 0 20px rgba(255,255,255,0.5)); }
-            to { filter: drop-shadow(0 0 30px rgba(255,255,255,0.8)); }
-        }
-
-        .header .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            font-weight: 300;
-        }
-
-        /* Login Section */
-        .auth-section {
-            max-width: 450px;
-            margin: 0 auto 40px;
-            padding: 40px;
-        }
-
-        .auth-title {
-            text-align: center;
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 30px;
-            background: var(--success-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Form Elements */
-        .form-group {
-            margin-bottom: 25px;
-            position: relative;
-        }
-
-        .form-label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 8px;
-            color: var(--text-light);
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 15px 20px;
-            border: 2px solid transparent;
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            color: var(--text-light);
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: rgba(255, 255, 255, 0.5);
-            background: rgba(255, 255, 255, 0.15);
-            transform: scale(1.02);
-        }
-
-        .form-input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        /* Modern Buttons */
-        .btn {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 15px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            background: var(--success-gradient);
-            color: var(--text-light);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        }
-
-        .btn:active {
-            transform: translateY(-1px);
-        }
-
-        .btn-danger {
-            background: var(--secondary-gradient);
-        }
-
-        .btn-offline {
-            background: var(--offline-gradient);
-        }
-
-        .btn-full {
-            width: 100%;
-        }
-
-        /* Offline Controls */
-        .offline-controls {
-            margin: 20px 0;
-            padding: 20px;
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .offline-stats {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .stat-item {
-            flex: 1;
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            background: var(--success-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin-top: 5px;
-        }
-
-        /* Admin Panel */
-        .admin-panel {
-            margin-bottom: 40px;
-            padding: 40px;
-        }
-
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .admin-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            background: var(--success-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Upload Area */
-        .upload-section {
-            margin-bottom: 30px;
-        }
-
-        .upload-area {
-            border: 3px dashed rgba(255, 255, 255, 0.3);
-            border-radius: 20px;
-            padding: 50px 30px;
-            text-align: center;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.05);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .upload-area::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(transparent, rgba(255,255,255,0.1), transparent);
-            animation: rotate 4s linear infinite;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .upload-area:hover::before {
-            opacity: 1;
-        }
-
-        .upload-area.dragover {
-            border-color: rgba(255, 255, 255, 0.8);
-            background: rgba(255, 255, 255, 0.1);
-            transform: scale(1.02);
-        }
-
-        @keyframes rotate {
-            100% { transform: rotate(360deg); }
-        }
-
-        .upload-icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            opacity: 0.8;
-        }
-
-        .upload-button {
-            background: var(--success-gradient);
-            color: var(--text-light);
-            padding: 20px 40px;
-            border: none;
-            border-radius: 15px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .upload-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        }
-
-        /* Folder Selection */
-        .folder-section {
-            margin: 20px 0;
-        }
-
-        .folder-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 15px 0;
-        }
-
-        .folder-option {
-            padding: 15px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            user-select: none;
-        }
-
-        .folder-option:hover {
-            border-color: rgba(255, 255, 255, 0.5);
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .folder-option.selected {
-            border-color: #00f2fe;
-            background: rgba(0, 242, 254, 0.2);
-            box-shadow: 0 0 20px rgba(0, 242, 254, 0.3);
-        }
-
-        .folder-icon {
-            font-size: 2rem;
-            margin-bottom: 8px;
-        }
-
-        /* Progress Bar */
-        .progress-container {
-            margin-top: 20px;
-            display: none;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--success-gradient);
-            width: 0%;
-            transition: width 0.3s ease;
-            position: relative;
-        }
-
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        /* Video Gallery */
-        .gallery-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 40px 0 30px;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .gallery-title {
-            font-size: 2rem;
-            font-weight: 700;
-            background: var(--success-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .folder-filter {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 10px 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 25px;
-            background: transparent;
-            color: var(--text-light);
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .filter-btn:hover, .filter-btn.active {
-            border-color: #00f2fe;
-            background: rgba(0, 242, 254, 0.2);
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
-        }
-
-        .video-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 30px;
-            margin-top: 30px;
-        }
-
-        /* Video Cards */
-        .video-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(var(--blur-amount));
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-
-        .video-card.offline-available {
-            border-color: #00f2fe;
-            box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
-        }
-
-        .video-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
-
-        .offline-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: var(--success-gradient);
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 11px;
-            font-weight: 600;
-            z-index: 10;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .video-player {
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
-            border-radius: 20px 20px 0 0;
-            transition: all 0.3s ease;
-        }
-
-        .video-card:hover .video-player {
-            transform: scale(1.05);
-        }
-
-        .video-info {
-            padding: 25px;
-            position: relative;
-        }
-
-        .video-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-            color: var(--text-light);
-            line-height: 1.4;
-        }
-
-        .video-description {
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 15px;
-            line-height: 1.6;
-            font-size: 14px;
-        }
-
-        .video-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .folder-tag {
-            background: var(--secondary-gradient);
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .video-actions {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            flex: 1;
-            min-width: 120px;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .btn-download {
-            background: var(--success-gradient);
-            color: var(--text-light);
-        }
-
-        .btn-delete {
-            background: var(--secondary-gradient);
-            color: var(--text-light);
-        }
-
-        .btn-save-offline {
-            background: var(--offline-gradient);
-            color: var(--text-light);
-        }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-        }
-
-        /* Messages */
-        .message {
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            text-align: center;
-            font-weight: 600;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            animation: slideIn 0.5s ease-out;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .message.success {
-            background: rgba(76, 175, 80, 0.2);
-            border-color: rgba(76, 175, 80, 0.5);
-            color: #4caf50;
-        }
-
-        .message.error {
-            background: rgba(244, 67, 54, 0.2);
-            border-color: rgba(244, 67, 54, 0.5);
-            color: #f44336;
-        }
-
-        .message.info {
-            background: rgba(33, 150, 243, 0.2);
-            border-color: rgba(33, 150, 243, 0.5);
-            color: #2196f3;
-        }
-
-        /* About Us Section */
-        .about-section {
-            margin-top: 80px;
-            padding: 60px 40px;
-            background: var(--about-gradient);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .about-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.2);
-            z-index: 1;
-        }
-
-        .about-content {
-            position: relative;
-            z-index: 2;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .about-title {
-            text-align: center;
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 30px;
-            background: linear-gradient(45deg, #fff, #f0f0f0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        }
-
-        .about-subtitle {
-            text-align: center;
-            font-size: 1.3rem;
-            margin-bottom: 50px;
-            opacity: 0.9;
-            line-height: 1.6;
-        }
-
-        .about-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 40px;
-            margin-bottom: 50px;
-        }
-
-        .about-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .about-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .about-card-icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            display: block;
-        }
-
-        .about-card-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 15px;
-            color: var(--text-light);
-        }
-
-        .about-card-description {
-            color: rgba(255, 255, 255, 0.8);
-            line-height: 1.6;
-            font-size: 14px;
-        }
-
-        .about-features {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 40px;
-        }
-
-        .features-title {
-            text-align: center;
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 30px;
-            color: var(--text-light);
-        }
-
-        .features-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .feature-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .feature-item:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateX(10px);
-        }
-
-        .feature-icon {
-            font-size: 1.5rem;
-            margin-right: 15px;
-        }
-
-        .feature-text {
-            font-weight: 500;
-            color: var(--text-light);
-        }
-
-        .about-footer {
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .developer-info {
-            margin-bottom: 20px;
-        }
-
-        .developer-name {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            background: var(--success-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .developer-title {
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 20px;
-        }
-
-        .tech-stack {
-            margin-bottom: 30px;
-        }
-
-        .tech-stack-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: var(--text-light);
-        }
-
-        .tech-badges {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .tech-badge {
-            padding: 8px 16px;
-            background: var(--secondary-gradient);
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .contact-info {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 14px;
-        }
-
-        .copyright {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 12px;
-        }
-
-        /* Utilities */
-        .hidden {
-            display: none !important;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            
-            .header h1 {
-                font-size: 2.5rem;
-            }
-            
-            .video-gallery {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .admin-header {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .folder-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .video-actions {
-                flex-direction: column;
-            }
-            
-            .action-btn {
-                min-width: auto;
-            }
-
-            .offline-stats {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .about-section {
-                padding: 40px 20px;
-            }
-
-            .about-title {
-                font-size: 2.5rem;
-            }
-
-            .about-grid {
-                grid-template-columns: 1fr;
-                gap: 25px;
-            }
-
-            .features-list {
-                grid-template-columns: 1fr;
-            }
-
-            .tech-badges {
-                justify-content: center;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .auth-section, .admin-panel {
-                padding: 25px;
-            }
-            
-            .upload-area {
-                padding: 30px 20px;
-            }
-            
-            .folder-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .about-card {
-                padding: 20px;
-            }
-
-            .about-features {
-                padding: 25px;
-            }
-        }
-
-        /* Loading Animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Cache Status Indicators */
-        .cache-status {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            z-index: 10;
-        }
-
-        .cache-cached {
-            background: rgba(76, 175, 80, 0.8);
-            color: white;
-        }
-
-        .cache-caching {
-            background: rgba(255, 152, 0, 0.8);
-            color: white;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>VideoFlow Pro Max – Fixed Upload Edition</title>
+  <meta name="theme-color" content="#667eea" />
+  
+  <style>
+:root{
+  --grad1:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  --grad2:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);
+  --grad3:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%);
+  --gradWarn:linear-gradient(135deg,#ff9a9e 0%,#fecfef 100%);
+  --glass:rgba(255,255,255,.08);
+  --glass-border:rgba(255,255,255,.18);
+  --txtLight:#fff;
+  --blur:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;scroll-behavior:smooth}
+body{min-height:100vh;background:var(--grad1);color:var(--txtLight);overflow-x:hidden}
+.hidden{display:none!important}
+.loading{width:20px;height:20px;border:3px solid rgba(255,255,255,.3);border-radius:50%;border-top-color:#fff;animation:spin 1s linear infinite;display:inline-block;margin-right:8px}@keyframes spin{to{transform:rotate(360deg)}}
+.glass{background:var(--glass);backdrop-filter:blur(var(--blur));border:1px solid var(--glass-border);border-radius:18px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+#storageBadge,#offlineBadge{position:fixed;z-index:1000;top:16px;padding:9px 18px;border-radius:24px;font-size:13px;font-weight:600;backdrop-filter:blur(12px);box-shadow:0 4px 14px rgba(0,0,0,.3)}
+#storageBadge{right:16px;background:var(--grad3)}
+#offlineBadge{left:16px;display:none;background:var(--gradWarn)}
+header{text-align:center;padding:46px 15px 30px}
+header h1{font-size:clamp(2.4rem,5vw,4rem);font-weight:800;background:linear-gradient(45deg,#fff,#e0e0e0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;text-shadow:0 4px 10px rgba(0,0,0,.35)}
+.badge{display:inline-block;background:var(--grad2);padding:6px 18px;border-radius:22px;font-size:13px;font-weight:700;margin-left:10px;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+.subtitle{opacity:.9;font-size:1.2rem}
+#loginBox{max-width:430px;margin:0 auto 40px;padding:38px 28px}#loginBox h2{font-size:1.7rem;font-weight:600;margin-bottom:26px;text-align:center;background:var(--grad3);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+label{font-weight:500;margin-bottom:6px;display:block}
+input,textarea{width:100%;padding:14px 18px;border:none;border-radius:14px;background:rgba(255,255,255,.1);color:#fff;font-size:15px;margin-bottom:22px}
+input:focus,textarea:focus{outline:none;background:rgba(255,255,255,.16)}
+button.btn{background:var(--grad3);border:none;color:#fff;padding:14px 28px;border-radius:14px;font-weight:600;font-size:15px;cursor:pointer;transition:.3s}button.btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.3)}
+#adminPanel{padding:40px;margin-bottom:50px}
+.adminHead{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px;margin-bottom:30px}
+.adminHead h2{font-size:1.7rem;font-weight:700;background:var(--grad3);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+button.danger{background:var(--grad2)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;margin-bottom:25px}
+.stat{padding:20px;text-align:center;background:rgba(255,255,255,.08);border-radius:16px}
+.statNum{font-size:2.1rem;font-weight:800;background:var(--grad3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+.statLbl{font-size:.88rem;opacity:.8}
+.progressRow{display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px}
+.bar{width:100%;height:10px;background:rgba(255,255,255,.2);border-radius:6px;overflow:hidden}
+.barFill{height:100%;width:0;background:var(--grad3);transition:.3s}
+.uploadBox{border:3px dashed rgba(255,255,255,.28);padding:58px 32px;text-align:center;border-radius:20px;background:rgba(255,255,255,.06);transition:.3s;margin-bottom:22px;cursor:pointer}
+.uploadBox:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.5)}
+.uploadBox.drag{transform:scale(1.02);border-color:#fff}
+.uploadBox p{margin-top:10px;opacity:.8;font-size:14px}
+#progressWrap{display:none;margin-top:18px}
+#pStatus{font-size:13px;margin-bottom:6px;font-weight:600;text-align:left}
+#pBar{height:12px;width:100%;background:rgba(255,255,255,.25);border-radius:6px;overflow:hidden}
+#pFill{width:0;height:100%;background:var(--grad3)}
+.folderGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:18px;margin:20px 0}
+.folderItem{padding:18px;border:2px solid rgba(255,255,255,.25);border-radius:14px;text-align:center;cursor:pointer;background:rgba(255,255,255,.08);transition:.25s}
+.folderItem:hover{background:rgba(255,255,255,.15)}
+.folderItem.sel{border-color:#00f2fe;background:rgba(0,242,254,.28)}
+.folderIcon{font-size:2rem;margin-bottom:6px}
+.galleryHead{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin:40px 0 26px}
+.galleryHead h3{font-size:1.9rem;font-weight:700;background:var(--grad3);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.filterBtn{padding:10px 22px;border:2px solid rgba(255,255,255,.3);background:transparent;border-radius:24px;font-size:14px;color:#fff;cursor:pointer;margin:4px 4px;transition:.25s}
+.filterBtn.active,.filterBtn:hover{border-color:#00f2fe;background:rgba(0,242,254,.25)}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:28px}
+.card{position:relative;border-radius:18px;overflow:hidden;background:var(--glass);border:1px solid var(--glass-border);transition:.35s}
+.card:hover{transform:translateY(-8px);box-shadow:0 16px 34px rgba(0,0,0,.35)}
+.card video{width:100%;height:220px;object-fit:cover}
+.badge{position:absolute;top:14px;padding:5px 10px;border-radius:14px;font-size:11px;font-weight:600}
+.offline{right:14px;background:var(--grad3)}
+.size{left:14px;background:var(--grad2)}
+.info{padding:22px}
+.info h4{font-size:1.25rem;margin-bottom:10px}
+.meta{display:flex;justify-content:space-between;font-size:12px;opacity:.7;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.aBtn{flex:1;padding:10px;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;transition:.25s}
+.dl{background:var(--grad3)}.cache{background:var(--gradWarn)}.del{background:var(--grad2)}
+#msg{margin:26px 0}.note{padding:18px;border-radius:14px;text-align:center;font-weight:600;animation:fade .4s}.note.success{background:rgba(76,175,80,.2)}.note.error{background:rgba(244,67,54,.22)}.note.info{background:rgba(0,156,255,.2)}@keyframes fade{from{opacity:0;transform:translateY(-10px)}to{opacity:1}}
+.about{margin-top:80px;padding:60px 32px;background:var(--grad2)}
+.about h2{font-size:2.8rem;font-weight:800;text-align:center;margin-bottom:24px;background:linear-gradient(45deg,#fff,#eee);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.about p{max-width:900px;margin:0 auto 40px;font-size:1.05rem;line-height:1.7;text-align:center;opacity:.92}
+.foot{margin-top:40px;text-align:center;font-size:.85rem;opacity:.75}
+@media(max-width:768px){
+ .gallery{grid-template-columns:1fr}
+ .uploadBox{padding:46px 24px}
+ .stats{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:480px){
+ .stats{grid-template-columns:1fr}
+}
+  </style>
 </head>
 <body>
-    <!-- Offline Status Indicator -->
-    <div id="offlineIndicator" class="offline-indicator">
-        🔌 Offline Mode
+
+<div id="storageBadge" class="glass">💾 Storage 0 / 20 GB</div>
+<div id="offlineBadge" class="glass">🔌 Offline Mode</div>
+
+<header>
+  <h1>🎬 VideoFlow <span class="badge">Pro Max</span></h1>
+  <p class="subtitle">Fixed Large File Upload - Enhanced Memory Management</p>
+</header>
+
+<section id="loginBox" class="glass">
+  <h2>🔐 Admin Login</h2>
+  <label>Username</label>
+  <input id="uName" placeholder="priyanshu1836" />
+  <label>Password</label>
+  <input id="uPass" type="password" placeholder="1836@1836" />
+  <button class="btn" onclick="login()"><span id="loginTxt">Login</span></button>
+</section>
+
+<section id="adminPanel" class="glass hidden">
+  <div class="adminHead">
+    <h2>⚡ Control Panel - Fixed Upload</h2>
+    <button class="btn danger" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="stats glass">
+    <div class="stat"><div class="statNum" id="vCount">0</div><div class="statLbl">Total Videos</div></div>
+    <div class="stat"><div class="statNum" id="cCount">0</div><div class="statLbl">Offline Cached</div></div>
+    <div class="stat"><div class="statNum" id="usedGB">0 GB</div><div class="statLbl">Used Space</div></div>
+    <div class="stat"><div class="statNum" id="freeGB">20 GB</div><div class="statLbl">Free Space</div></div>
+  </div>
+  <div class="progressRow"><span>Usage</span><span id="usePct">0%</span></div>
+  <div class="bar"><div id="barFill" class="barFill"></div></div>
+
+  <div class="uploadBox glass" id="dragZone" onclick="fInput.click()">
+    <h3>📁 Enhanced Upload System - No Read Fail</h3>
+    <p>✅ Fixed 10MB+ file processing • ⚡ Chunked reading • 💾 Memory optimized</p>
+    <input type="file" id="fInput" class="hidden" accept="video/*" onchange="filePicked(event)" />
+    <div id="progressWrap">
+      <div id="pStatus">Initializing enhanced reader...</div>
+      <div id="pBar"><div id="pFill"></div></div>
     </div>
+  </div>
 
-    <!-- Background Decorations -->
-    <div class="bg-decoration"></div>
-    <div class="bg-decoration"></div>
-    <div class="bg-decoration"></div>
+  <h4>📂 Folder</h4>
+  <div class="folderGrid" id="fGrid"></div>
+  <input id="custFold" placeholder="Custom folder (optional)" />
 
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <h1>🎬 VideoFlow <span class="pwa-badge">Pro</span></h1>
-            <p class="subtitle">Offline-Ready Video Platform - Upload, Organize, Share</p>
-        </header>
+  <input id="vTitle" placeholder="Video Title" />
+  <textarea id="vDesc" rows="3" placeholder="Description…"></textarea>
 
-        <!-- Login Section -->
-        <section id="loginSection" class="auth-section glass-card">
-            <h2 class="auth-title">🔐 Admin Access</h2>
-            <div class="form-group">
-                <label class="form-label" for="username">Username:</label>
-                <input type="text" id="username" class="form-input" placeholder="priyanshu1836" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="password">Password:</label>
-                <input type="password" id="password" class="form-input" placeholder="1836@1836" required>
-            </div>
-            <button class="btn btn-full" onclick="login()">
-                <span id="loginText">Login</span>
-            </button>
-            <div style="text-align: center; margin-top: 20px; opacity: 0.8; font-size: 14px;">
-                Default: priyanshu1836 / 1836@1836
-            </div>
-        </section>
+  <button class="btn" id="upBtn" onclick="uploadVid()">📤 Upload Video (Enhanced)</button>
+</section>
 
-        <!-- Admin Panel -->
-        <section id="adminPanel" class="admin-panel glass-card hidden">
-            <div class="admin-header">
-                <h2 class="admin-title">⚡ Admin Control Panel</h2>
-                <button class="btn btn-danger" onclick="logout()">Logout</button>
-            </div>
+<div id="msg"></div>
 
-            <!-- Offline Stats -->
-            <div class="offline-controls">
-                <h3 style="margin-bottom: 15px; color: var(--text-light);">📊 Offline Storage Stats</h3>
-                <div class="offline-stats">
-                    <div class="stat-item">
-                        <div class="stat-number" id="totalVideos">0</div>
-                        <div class="stat-label">Total Videos</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="cachedVideos">0</div>
-                        <div class="stat-label">Offline Available</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="cacheSize">0 MB</div>
-                        <div class="stat-label">Cache Size</div>
-                    </div>
-                </div>
-                <div style="text-align: center;">
-                    <button class="btn btn-offline" onclick="clearCache()" style="margin-right: 10px;">🗑️ Clear Cache</button>
-                    <button class="btn btn-offline" onclick="cacheAllVideos()">💾 Cache All Videos</button>
-                </div>
-            </div>
-            
-            <!-- Upload Section -->
-            <div class="upload-section">
-                <div class="upload-area" onclick="document.getElementById('videoFile').click()">
-                    <div class="upload-icon">📁</div>
-                    <button class="upload-button">Select Video File</button>
-                    <p style="opacity: 0.8; margin-bottom: 10px;">या यहाँ drag & drop करें</p>
-                    <p style="opacity: 0.6; font-size: 14px;">Maximum file size: 100MB</p>
-                    <input type="file" id="videoFile" class="file-input" accept="video/*" onchange="handleFileSelect(event)">
-                </div>
+<section>
+  <div class="galleryHead">
+    <h3>🎞️ Gallery</h3>
+    <div id="fFilter"></div>
+  </div>
+  <div class="gallery" id="gallery"></div>
+</section>
 
-                <div class="progress-container" id="progressContainer">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                    <p id="progressText" style="text-align: center; margin-top: 10px; font-size: 14px;">0%</p>
-                </div>
-            </div>
+<section class="about">
+  <h2>🌟 About VideoFlow Pro Max</h2>
+  <p>Enhanced with chunked file reading, advanced error handling, and memory optimization to prevent "read fail" issues on large files.</p>
+  <p class="foot">© 2025 Priyanshu • Enhanced Upload Edition</p>
+</section>
 
-            <!-- Folder Selection -->
-            <div class="folder-section">
-                <h3 style="margin-bottom: 15px; color: var(--text-light);">📂 Select Folder Category:</h3>
-                <div class="folder-grid" id="folderGrid">
-                    <div class="folder-option" data-folder="Entertainment">
-                        <div class="folder-icon">🎭</div>
-                        <div>Entertainment</div>
-                    </div>
-                    <div class="folder-option" data-folder="Education">
-                        <div class="folder-icon">📚</div>
-                        <div>Education</div>
-                    </div>
-                    <div class="folder-option" data-folder="Music">
-                        <div class="folder-icon">🎵</div>
-                        <div>Music</div>
-                    </div>
-                    <div class="folder-option" data-folder="Sports">
-                        <div class="folder-icon">⚽</div>
-                        <div>Sports</div>
-                    </div>
-                    <div class="folder-option" data-folder="Technology">
-                        <div class="folder-icon">💻</div>
-                        <div>Technology</div>
-                    </div>
-                    <div class="folder-option" data-folder="Travel">
-                        <div class="folder-icon">✈️</div>
-                        <div>Travel</div>
-                    </div>
-                </div>
-                <div style="margin-top: 15px;">
-                    <input type="text" id="customFolder" class="form-input" placeholder="या कोई custom folder name लिखें">
-                </div>
-            </div>
+<script>
+/* ====== Enhanced Globals ===== */
+let isAdmin=false,selFile=null,selFolder='General',filter='All';
+const LIM={TOTAL:20*1024**3,SINGLE:5*1024**3};
+let opfs=!!(navigator.storage&&navigator.storage.getDirectory),root;
+const cacheName='vf-cache-v4';
+const fHandles={};
 
-            <!-- Video Details -->
-            <div class="form-group">
-                <label class="form-label" for="videoTitle">Video Title:</label>
-                <input type="text" id="videoTitle" class="form-input" placeholder="Enter video title" required>
-            </div>
+/* ====== Chunked File Reading System ===== */
+class EnhancedFileReader {
+  constructor() {
+    this.CHUNK_SIZE = 2 * 1024 * 1024; // 2MB chunks to prevent memory issues
+    this.readers = new Map();
+  }
 
-            <div class="form-group">
-                <label class="form-label" for="videoDescription">Video Description:</label>
-                <textarea id="videoDescription" class="form-input" rows="4" placeholder="Enter video description"></textarea>
-            </div>
+  // Enhanced file reading with chunking and error handling
+  async readFileEnhanced(file, onProgress = null) {
+    console.log(`📖 Enhanced reading: ${file.name} (${format(file.size)})`);
+    
+    try {
+      // For files < 50MB, use optimized single read
+      if (file.size < 50 * 1024 * 1024) {
+        return await this.readFileDirect(file, onProgress);
+      }
+      
+      // For larger files, use chunked reading
+      return await this.readFileChunked(file, onProgress);
+      
+    } catch (error) {
+      console.error('🚫 Enhanced file reading failed:', error);
+      throw new Error(`File reading failed: ${error.message}`);
+    }
+  }
 
-            <button class="btn btn-full" onclick="uploadVideo()" id="uploadBtn">
-                📤 Upload Video
-            </button>
-        </section>
+  // Direct reading for smaller files with timeout protection
+  async readFileDirect(file, onProgress) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      const timeout = setTimeout(() => {
+        reader.abort();
+        reject(new Error('File reading timeout (30s limit)'));
+      }, 30000);
 
-        <!-- Messages -->
-        <div id="messageArea"></div>
-
-        <!-- Video Gallery -->
-        <section class="gallery-section">
-            <div class="gallery-header">
-                <h2 class="gallery-title">🎬 Video Gallery</h2>
-                <div class="folder-filter" id="folderFilter"></div>
-            </div>
-            <div id="videoGallery" class="video-gallery"></div>
-        </section>
-    </div>
-
-    <!-- About Us Section -->
-    <section class="about-section">
-        <div class="about-content">
-            <h2 class="about-title">🌟 About VideoFlow Pro</h2>
-            <p class="about-subtitle">
-                VideoFlow Pro एक modern, offline-ready video sharing platform है जो आपको videos को organize करने, share करने और offline access करने की सुविधा देता है।
-            </p>
-
-            <div class="about-grid">
-                <div class="about-card">
-                    <span class="about-card-icon">🎯</span>
-                    <h3 class="about-card-title">हमारा Mission</h3>
-                    <p class="about-card-description">
-                        Video sharing को simple, secure और accessible बनाना। हर user को बिना complexity के अपनी videos को organize और share करने की सुविधा देना।
-                    </p>
-                </div>
-
-                <div class="about-card">
-                    <span class="about-card-icon">💡</span>
-                    <h3 class="about-card-title">Innovation</h3>
-                    <p class="about-card-description">
-                        Latest web technologies का use करके offline-first approach के साथ एक unique video platform बनाया गया है जो बिना internet के भी काम करता है।
-                    </p>
-                </div>
-
-                <div class="about-card">
-                    <span class="about-card-icon">🔐</span>
-                    <h3 class="about-card-title">Security First</h3>
-                    <p class="about-card-description">
-                        Admin-only upload system के साथ secure video management। आपकी videos browser के अंदर ही safe रहती हैं।
-                    </p>
-                </div>
-            </div>
-
-            <div class="about-features">
-                <h3 class="features-title">🚀 Key Features</h3>
-                <div class="features-list">
-                    <div class="feature-item">
-                        <span class="feature-icon">🔐</span>
-                        <span class="feature-text">Secure Admin Login System</span>
-                    </div>
-                    <div class="feature-item">
-                        <span class="feature-icon">📁</span>
-                        <span class="feature-text">Smart Folder Organization</span>
-                    </div>
-                    <div class="feature-item">
-                        <span class="feature-icon">📱</span>
-                        <span class="feature-text">Offline Video Access</span>
-                    </div>
-                    <div class="feature-item">
-                        <span class="feature-icon">🎨</span>
-                        <span class="feature-text">Modern Glass Morphism UI</span>
-                    </div>
-                    <div class="feature-item">
-                        <span class="feature-icon">⚡</span>
-                        <span class="feature-text">Progressive Web App (PWA)</span>
-                    </div>
-                    <div class="feature-item">
-                        <span class="feature-icon">📲</span>
-                        <span class="feature-text">Mobile-First Responsive Design</span>
-                    </div>
-                    <div class="feature-item">
-                        <span class="feature-icon">🎬</span>
-                        <span class="feature-text">HTML5 Video Player</span>
-                    </div>
-                    <div class="feature-item">
-                        <span class="feature-icon">💾</span>
-                        <span class="feature-text">One-Click Download</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="about-footer">
-                <div class="developer-info">
-                    <h3 class="developer-name">Developed by Priyanshu</h3>
-                    <p class="developer-title">Full-Stack Developer & UI/UX Enthusiast</p>
-                    <p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; line-height: 1.6;">
-                        Modern web technologies के साथ user-centric applications बनाना मेरा passion है। 
-                        VideoFlow Pro एक example है कि कैसे simple requirements को innovative solutions के साथ पूरा किया जा सकता है।
-                    </p>
-                </div>
-
-                <div class="tech-stack">
-                    <h4 class="tech-stack-title">🛠️ Technology Stack</h4>
-                    <div class="tech-badges">
-                        <span class="tech-badge">HTML5</span>
-                        <span class="tech-badge">CSS3</span>
-                        <span class="tech-badge">JavaScript ES6+</span>
-                        <span class="tech-badge">Service Worker</span>
-                        <span class="tech-badge">Cache API</span>
-                        <span class="tech-badge">Local Storage</span>
-                        <span class="tech-badge">PWA</span>
-                        <span class="tech-badge">Responsive Design</span>
-                    </div>
-                </div>
-
-                <div class="contact-info">
-                    <p><strong>📧 Support:</strong> Need help? Contact admin for assistance</p>
-                    <p><strong>🌐 Platform:</strong> Client-side only - No server required</p>
-                    <p><strong>💻 Compatibility:</strong> All modern browsers supported</p>
-                </div>
-
-                <div class="copyright">
-                    <p>© 2025 VideoFlow Pro. Built with ❤️ for seamless video sharing experience.</p>
-                    <p>Made in India 🇮🇳 | Version 2.0 Pro Edition</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <script>
-        let isAdmin = false;
-        let selectedFile = null;
-        let selectedFolder = 'General';
-        let currentFilter = 'All';
-        let cacheName = 'videoflow-cache-v1';
-        let isOnline = navigator.onLine;
-
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
-            loadVideos();
-            setupDragAndDrop();
-            setupFolderSelection();
-            updateFolderFilter();
-            registerServiceWorker();
-            updateOfflineStatus();
-            updateOfflineStats();
-        });
-
-        // Initialize Progressive Web App
-        async function initializeApp() {
-            // Check for service worker support
-            if ('serviceWorker' in navigator) {
-                await registerServiceWorker();
-            }
-            
-            // Handle online/offline events
-            window.addEventListener('online', () => {
-                isOnline = true;
-                updateOfflineStatus();
-                showMessage('🌐 Back online!', 'success');
-            });
-            
-            window.addEventListener('offline', () => {
-                isOnline = false;
-                updateOfflineStatus();
-                showMessage('📱 Offline mode activated! Cached videos are still available.', 'info');
-            });
+      reader.onprogress = (e) => {
+        if (e.lengthComputable && onProgress) {
+          onProgress(Math.round((e.loaded / e.total) * 100));
         }
+      };
 
-        // Register Service Worker
-        async function registerServiceWorker() {
-            if ('serviceWorker' in navigator) {
-                try {
-                    // Create a simple service worker inline
-                    const swCode = `
-                        const CACHE_NAME = 'videoflow-cache-v1';
-                        
-                        self.addEventListener('install', (event) => {
-                            console.log('Service Worker installing...');
-                            self.skipWaiting();
-                        });
-                        
-                        self.addEventListener('activate', (event) => {
-                            console.log('Service Worker activating...');
-                            event.waitUntil(self.clients.claim());
-                        });
-                        
-                        self.addEventListener('fetch', (event) => {
-                            if (event.request.url.includes('blob:')) {
-                                // Don't cache blob URLs
-                                return;
-                            }
-                            
-                            event.respondWith(
-                                caches.match(event.request).then((response) => {
-                                    if (response) {
-                                        return response;
-                                    }
-                                    return fetch(event.request);
-                                })
-                            );
-                        });
-                    `;
-                    
-                    const blob = new Blob([swCode], { type: 'application/javascript' });
-                    const swUrl = URL.createObjectURL(blob);
-                    
-                    const registration = await navigator.serviceWorker.register(swUrl);
-                    console.log('Service Worker registered successfully:', registration);
-                } catch (error) {
-                    console.log('Service Worker registration failed:', error);
-                }
-            }
+      reader.onload = (e) => {
+        clearTimeout(timeout);
+        if (!e.target.result) {
+          reject(new Error('FileReader returned empty result'));
+        } else {
+          resolve(e.target.result);
         }
+      };
 
-        // Update offline status indicator
-        function updateOfflineStatus() {
-            const indicator = document.getElementById('offlineIndicator');
-            if (isOnline) {
-                indicator.textContent = '🌐 Online';
-                indicator.className = 'offline-indicator online-indicator';
-                indicator.classList.remove('show');
-                setTimeout(() => indicator.classList.remove('show'), 3000);
-            } else {
-                indicator.textContent = '📱 Offline Mode';
-                indicator.className = 'offline-indicator show';
-            }
-        }
+      reader.onerror = () => {
+        clearTimeout(timeout);
+        reject(new Error(`FileReader error: ${reader.error?.message || 'Unknown error'}`));
+      };
 
-        // Cache video for offline access
-        async function cacheVideo(videoId) {
-            try {
-                const videos = JSON.parse(localStorage.getItem('videoflow_videos') || '[]');
-                const video = videos.find(v => v.id == videoId);
-                
-                if (!video) return false;
+      reader.onabort = () => {
+        clearTimeout(timeout);
+        reject(new Error('File reading was aborted'));
+      };
 
-                const cache = await caches.open(cacheName);
-                const response = new Response(video.data);
-                await cache.put(`video-${videoId}`, response);
-                
-                // Mark video as cached
-                video.cached = true;
-                localStorage.setItem('videoflow_videos', JSON.stringify(videos));
-                
-                showMessage('💾 Video saved for offline access!', 'success');
-                loadVideos();
-                updateOfflineStats();
-                return true;
-            } catch (error) {
-                console.error('Error caching video:', error);
-                showMessage('❌ Error saving video for offline access!', 'error');
-                return false;
-            }
-        }
+      reader.readAsDataURL(file);
+    });
+  }
 
-        // Remove video from cache
-        async function removeCachedVideo(videoId) {
-            try {
-                const cache = await caches.open(cacheName);
-                await cache.delete(`video-${videoId}`);
-                
-                const videos = JSON.parse(localStorage.getItem('videoflow_videos') || '[]');
-                const video = videos.find(v => v.id == videoId);
-                if (video) {
-                    video.cached = false;
-                    localStorage.setItem('videoflow_videos', JSON.stringify(videos));
-                }
-                
-                showMessage('🗑️ Video removed from offline storage!', 'info');
-                loadVideos();
-                updateOfflineStats();
-            } catch (error) {
-                console.error('Error removing cached video:', error);
-            }
-        }
+  // Chunked reading for large files
+  async readFileChunked(file, onProgress) {
+    const chunks = [];
+    const totalChunks = Math.ceil(file.size / this.CHUNK_SIZE);
+    let processedChunks = 0;
 
-        // Cache all videos
-        async function cacheAllVideos() {
-            const videos = JSON.parse(localStorage.getItem('videoflow_videos') || '[]');
-            let cachedCount = 0;
-            
-            showMessage('💾 Caching all videos for offline access...', 'info');
-            
-            for (const video of videos) {
-                if (!video.cached) {
-                    const success = await cacheVideo(video.id);
-                    if (success) cachedCount++;
-                }
-            }
-            
-            showMessage(`✅ ${cachedCount} videos cached for offline access!`, 'success');
-        }
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * this.CHUNK_SIZE;
+      const end = Math.min(start + this.CHUNK_SIZE, file.size);
+      const chunk = file.slice(start, end);
 
-        // Clear all cache
-        async function clearCache() {
-            if (confirm('Are you sure you want to clear all cached videos?')) {
-                try {
-                    await caches.delete(cacheName);
-                    
-                    const videos = JSON.parse(localStorage.getItem('videoflow_videos') || '[]');
-                    videos.forEach(video => video.cached = false);
-                    localStorage.setItem('videoflow_videos', JSON.stringify(videos));
-                    
-                    showMessage('🗑️ All cached videos cleared!', 'info');
-                    loadVideos();
-                    updateOfflineStats();
-                } catch (error) {
-                    console.error('Error clearing cache:', error);
-                }
-            }
-        }
+      const chunkData = await this.readChunk(chunk);
+      chunks.push(chunkData);
+      
+      processedChunks++;
+      if (onProgress) {
+        onProgress(Math.round((processedChunks / totalChunks) * 100));
+      }
 
-        // Update offline statistics
-        function updateOfflineStats() {
-            const videos = JSON.parse(localStorage.getItem('videoflow_videos') || '[]');
-            const cachedVideos = videos.filter(v => v.cached);
-            
-            // Calculate cache size (approximate)
-            let totalSize = 0;
-            cachedVideos.forEach(video => {
-                totalSize += video.size || 0;
-            });
-            
-            document.getElementById('totalVideos').textContent = videos.length;
-            document.getElementById('cachedVideos').textContent = cachedVideos.length;
-            document.getElementById('cacheSize').textContent = formatFileSize(totalSize);
-        }
+      // Allow UI to breathe between chunks
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
 
-        // Setup drag and drop
-        function setupDragAndDrop() {
-            const uploadArea = document.querySelector('.upload-area');
-            
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                uploadArea.addEventListener(eventName, preventDefaults, false);
-            });
+    // Combine chunks into single data URL
+    const combinedData = this.combineChunks(chunks, file.type);
+    return combinedData;
+  }
 
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
-            ['dragenter', 'dragover'].forEach(eventName => {
-                uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragover'), false);
-            });
-            
-            ['dragleave', 'drop'].forEach(eventName => {
-                uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragover'), false);
-            });
-            
-            uploadArea.addEventListener('drop', handleDrop, false);
+  // Read individual chunk
+  async readChunk(chunk) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      const timeout = setTimeout(() => {
+        reader.abort();
+        reject(new Error('Chunk reading timeout'));
+      }, 10000);
 
-            function handleDrop(e) {
-                const files = e.dataTransfer.files;
-                if (files.length > 0 && files[0].type.startsWith('video/')) {
-                    selectedFile = files[0];
-                    showMessage(`✅ File selected: ${files[0].name}`, 'success');
-                }
-            }
-        }
+      reader.onload = (e) => {
+        clearTimeout(timeout);
+        resolve(e.target.result);
+      };
 
-        // Setup folder selection
-        function setupFolderSelection() {
-            const folderOptions = document.querySelectorAll('.folder-option');
-            
-            folderOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    folderOptions.forEach(opt => opt.classList.remove('selected'));
-                    this.classList.add('selected');
-                    selectedFolder = this.dataset.folder;
-                    document.getElementById('customFolder').value = '';
-                });
-            });
+      reader.onerror = () => {
+        clearTimeout(timeout);
+        reject(new Error('Chunk reading failed'));
+      };
 
-            document.getElementById('customFolder').addEventListener('input', function() {
-                if (this.value.trim()) {
-                    selectedFolder = this.value.trim();
-                    folderOptions.forEach(opt => opt.classList.remove('selected'));
-                } else if (!document.querySelector('.folder-option.selected')) {
-                    selectedFolder = 'General';
-                }
-            });
-        }
+      reader.readAsArrayBuffer(chunk);
+    });
+  }
 
-        // Login function
-        function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const loginBtn = document.querySelector('#loginSection .btn');
-            const loginText = document.getElementById('loginText');
-            
-            loginBtn.disabled = true;
-            loginText.innerHTML = '<span class="loading"></span>Logging in...';
-            
-            setTimeout(() => {
-                if (username === 'priyanshu1836' && password === '1836@1836') {
-                    isAdmin = true;
-                    document.getElementById('loginSection').classList.add('hidden');
-                    document.getElementById('adminPanel').classList.remove('hidden');
-                    showMessage('🎉 Admin login successful!', 'success');
-                    updateOfflineStats();
-                } else {
-                    showMessage('❌ Invalid credentials!', 'error');
-                }
-                
-                loginBtn.disabled = false;
-                loginText.textContent = 'Login';
-            }, 1500);
-        }
+  // Combine chunks into data URL
+  combineChunks(chunks, fileType) {
+    const totalLength = chunks.reduce((sum, chunk) => sum + chunk.byteLength, 0);
+    const combined = new Uint8Array(totalLength);
+    let offset = 0;
 
-        // Logout function
-        function logout() {
-            isAdmin = false;
-            document.getElementById('loginSection').classList.remove('hidden');
-            document.getElementById('adminPanel').classList.add('hidden');
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            resetForm();
-            showMessage('👋 Logged out successfully!', 'success');
-        }
+    for (const chunk of chunks) {
+      combined.set(new Uint8Array(chunk), offset);
+      offset += chunk.byteLength;
+    }
 
-        // Handle file selection
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (file && file.type.startsWith('video/')) {
-                if (file.size > 100 * 1024 * 1024) { // 100MB limit
-                    showMessage('⚠️ File size too large! Maximum 100MB allowed.', 'error');
-                    return;
-                }
-                selectedFile = file;
-                showMessage(`✅ File selected: ${file.name}`, 'success');
-            } else {
-                showMessage('❌ Please select a valid video file!', 'error');
-            }
-        }
+    const blob = new Blob([combined], { type: fileType });
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error('Failed to create data URL from chunks'));
+      reader.readAsDataURL(blob);
+    });
+  }
+}
 
-        // Upload video
-        function uploadVideo() {
-            if (!selectedFile) {
-                showMessage('⚠️ Please select a video file first!', 'error');
-                return;
-            }
+const fileReader = new EnhancedFileReader();
 
-            const title = document.getElementById('videoTitle').value.trim();
-            if (!title) {
-                showMessage('⚠️ Please enter a video title!', 'error');
-                return;
-            }
+/* ====== Init ===== */
+document.addEventListener('DOMContentLoaded',async()=>{
+  if(opfs) {
+    try {
+      root=await navigator.storage.getDirectory();
+    } catch(e) {
+      console.warn('OPFS init failed:', e);
+    }
+  }
+  buildFolders();
+  loadVideos();
+  updateStats();
+  navigator.storage?.estimate?.().then(q=>updateBadge(q.usage,q.quota));
+  window.addEventListener('online',()=>toggleNet(true));
+  window.addEventListener('offline',()=>toggleNet(false));
+});
 
-            const customFolderInput = document.getElementById('customFolder').value.trim();
-            if (customFolderInput) {
-                selectedFolder = customFolderInput;
-            }
+/* ====== Auth ===== */
+function login(){
+  const u=document.getElementById('uName').value.trim();
+  const p=document.getElementById('uPass').value.trim();
+  if(u==='priyanshu1836'&&p==='1836@1836'){isAdmin=true;
+    loginBox.classList.add('hidden');adminPanel.classList.remove('hidden');
+    note('✅ Admin login success! Enhanced upload ready.','success');
+  }else note('❌ Wrong credentials','error');
+}
+function logout(){isAdmin=false;location.reload();}
 
-            const description = document.getElementById('videoDescription').value.trim();
-            
-            // Show progress
-            const progressContainer = document.getElementById('progressContainer');
-            const progressFill = document.getElementById('progressFill');
-            const progressText = document.getElementById('progressText');
-            const uploadBtn = document.getElementById('uploadBtn');
-            
-            progressContainer.style.display = 'block';
-            uploadBtn.disabled = true;
-            uploadBtn.innerHTML = '<span class="loading"></span>Uploading...';
+/* ====== Folder UI ===== */
+const baseFolders=['Entertainment','Education','Music','Sports','Technology','Travel','Movies','Series'];
+function buildFolders(){
+  fGrid.innerHTML=baseFolders.map(f=>
+    `<div class="folderItem" onclick="pickFold(this,'${f}')"><div class="folderIcon">📁</div>${f}</div>`).join('');
+}
+function pickFold(el,f){document.querySelectorAll('.folderItem').forEach(x=>x.classList.remove('sel'));
+ el.classList.add('sel');selFolder=f;custFold.value='';}
 
-            // Simulate upload progress
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += Math.random() * 10;
-                if (progress >= 90) {
-                    progress = 90;
-                    clearInterval(interval);
-                }
-                progressFill.style.width = progress + '%';
-                progressText.textContent = Math.round(progress) + '%';
-            }, 200);
+/* ====== Enhanced Drag & Drop ===== */
+['dragenter','dragover','dragleave','drop'].forEach(ev=>{
+  dragZone.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();});
+});
+['dragenter','dragover'].forEach(ev=>dragZone.addEventListener(ev,()=>dragZone.classList.add('drag')));
+['dragleave','drop'].forEach(ev=>dragZone.addEventListener(ev,()=>dragZone.classList.remove('drag')));
+dragZone.addEventListener('drop',e=>{filePicked({target:{files:e.dataTransfer.files}})});
 
-            // Process file
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                clearInterval(interval);
-                progressFill.style.width = '100%';
-                progressText.textContent = '100%';
-                
-                setTimeout(() => {
-                    const videoData = {
-                        id: Date.now(),
-                        title: title,
-                        description: description,
-                        folder: selectedFolder,
-                        data: e.target.result,
-                        filename: selectedFile.name,
-                        size: selectedFile.size,
-                        uploadDate: new Date().toLocaleDateString('hi-IN'),
-                        uploadTime: new Date().toLocaleTimeString('hi-IN'),
-                        cached: false
-                    };
+/* ====== Enhanced File Pick ===== */
+function filePicked(e){
+  const f=e.target.files[0]; 
+  if(!f||!f.type.startsWith('video/')){
+    note('❌ Invalid file type - select video only','error');
+    return;
+  }
+  if(f.size>LIM.SINGLE){
+    note('⚠️ Single file limit 5 GB exceeded','error');
+    return;
+  }
+  if(totalBytes()+f.size>LIM.TOTAL){
+    note('💾 Storage full (20 GB limit reached)','error');
+    return;
+  }
+  
+  selFile=f; 
+  const sizeClass = f.size > 100*1024*1024 ? 'large' : f.size > 10*1024*1024 ? 'medium' : 'small';
+  note(`✅ File selected: ${f.name} (${format(f.size)}) - Enhanced processing ready`,'success');
+}
 
-                    // Save to localStorage
-                    const videos = JSON.parse(localStorage.getItem('videoflow_videos') || '[]');
-                    videos.push(videoData);
-                    localStorage.setItem('videoflow_videos', JSON.stringify(videos));
+/* ====== Enhanced Upload with Fixed Reading ===== */
+async function uploadVid(){
+  if(!selFile){note('⚠️ Select file first','error');return;}
+  const title=vTitle.value.trim();if(!title){note('⚠️ Title required','error');return;}
+  if(custFold.value.trim()) selFolder=custFold.value.trim();
 
-                    resetForm();
-                    showMessage('🎉 Video uploaded successfully!', 'success');
-                    loadVideos();
-                    updateFolderFilter();
-                    updateOfflineStats();
-                }, 1000);
-            };
+  upBtn.disabled=true;
+  progress(0,'🔄 Initializing enhanced file reader...');
+  
+  console.log(`🚀 Starting enhanced upload: ${selFile.name} (${format(selFile.size)})`);
+  
+  let payload={},start=Date.now();
+  
+  try{
+    // Enhanced file processing with chunked reading
+    progress(10, '📖 Reading file with enhanced system...');
+    
+    let fileData;
+    if(opfs && selFile.size > 100*1024*1024){  // >100 MB to OPFS
+      progress(20, '💾 Using OPFS for large file...');
+      const h=await root.getFileHandle('v_'+Date.now()+'_'+selFile.name,{create:true});
+      const w=await h.createWritable(); 
+      
+      // Write in chunks to prevent memory issues
+      const WRITE_CHUNK = 10*1024*1024; // 10MB chunks
+      for(let i=0; i<selFile.size; i+=WRITE_CHUNK) {
+        const chunk = selFile.slice(i, Math.min(i+WRITE_CHUNK, selFile.size));
+        await w.write(chunk);
+        progress(20 + Math.round((i/selFile.size)*60), `💾 Writing to OPFS... ${Math.round(i/selFile.size*100)}%`);
+      }
+      await w.close();
+      
+      payload={ref:{type:'opfs',name:h.name},size:selFile.size};
+      progress(85, '✅ OPFS storage completed');
+      
+    } else {
+      // Enhanced reading for standard storage
+      progress(25, '🔄 Enhanced file reading in progress...');
+      
+      const dataUrl = await fileReader.readFileEnhanced(selFile, (percent) => {
+        progress(25 + Math.round(percent * 0.6), `📖 Reading file... ${percent}%`);
+      });
+      
+      // Extract base64 data from data URL
+      const base64Data = dataUrl.split(',')[1];
+      payload={data:base64Data, size:selFile.size};
+      progress(85, '✅ File reading completed');
+    }
+    
+  } catch(err) {
+    console.error('❌ Enhanced upload error:', err);
+    progress(0,'');
+    upBtn.disabled=false;
+    note(`❌ Upload failed: ${err.message}. Try with smaller file or refresh page.`,'error');
+    return;
+  }
+  
+  progress(90,'💾 Saving to database...');
+  
+  const clip={
+    id:Date.now(),
+    title,
+    desc:vDesc.value.trim(),
+    folder:selFolder,
+    ...payload,
+    file:selFile.name,
+    date:new Date().toLocaleDateString('hi-IN'),
+    time:new Date().toLocaleTimeString('hi-IN'),
+    cached:false
+  };
+  
+  try {
+    const arr=JSON.parse(localStorage.getItem('vf_vids')||'[]');
+    arr.push(clip);
+    localStorage.setItem('vf_vids',JSON.stringify(arr));
+    
+    progress(100,'✅ Upload completed');
+    setTimeout(()=>{
+      progress(0,'');
+      resetForm();
+      loadVideos();
+      updateStats();
+      const processingTime = Math.round((Date.now()-start)/1000);
+      note(`🎉 Large video uploaded successfully! (${processingTime}s) - No read fail!`,'success');
+    },800);
+    
+  } catch(saveErr) {
+    console.error('💾 Save error:', saveErr);
+    progress(0,'');
+    upBtn.disabled=false;
+    note(`❌ Save failed: ${saveErr.message}`,'error');
+  }
+}
 
-            reader.readAsDataURL(selectedFile);
-        }
+function progress(p,txt){
+  pFill.style.width=p+'%';
+  pStatus.textContent=txt;
+  pBar.parentElement.style.display=txt?'block':'none';
+}
 
-        // Reset form
-        function resetForm() {
-            document.getElementById('videoTitle').value = '';
-            document.getElementById('videoDescription').value = '';
-            document.getElementById('videoFile').value = '';
-            document.getElementById('customFolder').value = '';
-            document.querySelectorAll('.folder-option').forEach(opt => opt.classList.remove('selected'));
-            selectedFile = null;
-            selectedFolder = 'General';
-            
-            const progressContainer = document.getElementById('progressContainer');
-            const progressFill = document.getElementById('progressFill');
-            const progressText = document.getElementById('progressText');
-            const uploadBtn = document.getElementById('uploadBtn');
-            
-            progressContainer.style.display = 'none';
-            progressFill.style.width = '0%';
-            progressText.textContent = '0%';
-            uploadBtn.disabled = false;
-            uploadBtn.textContent = '📤 Upload Video';
-        }
+/* ====== Reset ===== */
+function resetForm(){selFile=null;vTitle.value=vDesc.value='';custFold.value='';selFolder='General';
+ document.querySelectorAll('.folderItem').forEach(x=>x.classList.remove('sel'));upBtn.disabled=false;}
 
-        // Update folder filter
-        function updateFolderFilter() {
-            const videos = JSON.parse(localStorage.getItem('videoflow_videos') || '[]');
-            const folders = [...new Set(videos.map(video => video.folder))];
-            const filterContainer = document.getElementById('folderFilter');
-            
-            let filterHTML = '<button class="filter-btn active" onclick="filterVideos(\'All\')">All</button>';
-            folders.forEach(folder => {
-                filterHTML += `<button class="filter-btn" onclick="filterVideos('${folder}')">${folder}</button>`;
-            });
-            
-            filterContainer.innerHTML = filterHTML;
-        }
+/* ====== Enhanced Gallery Load ===== */
+async function loadVideos(){
+  const list=JSON.parse(localStorage.getItem('vf_vids')||'[]');
+  const show=list.filter(v=>filter==='All'||v.folder===filter).reverse();
+  if(!show.length){gallery.innerHTML='<p style="text-align:center;opacity:.8">No videos uploaded yet</p>';return;}
+  
+  const cards=await Promise.all(show.map(async v=>{
+    let src='',store=v.ref?.type||'data';
+    if(v.ref?.type==='opfs'){
+      try{
+        fHandles[v.ref.name]??=await root.getFileHandle(v.ref.name);
+        src=URL.createObjectURL(await (await fHandles[v.ref.name].getFile()));
+      }catch(e){console.warn('OPFS read failed:',e);src='#';}
+    } else if(v.data) {
+      src='data:video/mp4;base64,'+v.data;
+    } else {
+      src='#';
+    }
+    
+    const sz=format(v.size),sizeBadge=v.size>1024**3?'🔥 '+sz:v.size>100*1024**2?'⚡ '+sz:sz;
+    return `<div class="card">
+      ${v.cached?'<div class="badge offline">📱 Offline</div>':''}
+      <div class="badge size">${sizeBadge}</div>
+      <video src="${src}" controls></video>
+      <div class="info"><h4>${v.title}</h4>
+      <div class="meta"><span>📅 ${v.date}</span><span>${v.folder}</span></div>
+      <p style="font-size:13px;opacity:.85;margin-bottom:12px">${v.desc||''}</p>
+      <div class="actions">
+        <button class="aBtn dl" onclick="download('${v.id}')">💾 Download</button>
+        ${!v.cached&&store!=='opfs'?`<button class="aBtn cache" onclick="cache('${v.id}')">📱 Cache</button>`:''}
+        ${isAdmin?`<button class="aBtn del" onclick="removeVid('${v.id}')">🗑️ Delete</button>`:''}
+      </div></div></div>`;
+  }));
+  gallery.innerHTML=cards.join('');
+}
 
-        // Filter videos by folder
-        function filterVideos(folder) {
-            currentFilter = folder;
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            loadVideos();
-        }
+/* ====== Cache ===== */
+async function cache(id){
+  const arr=JSON.parse(localStorage.getItem('vf_vids'));const v=arr.find(x=>x.id==id);
+  if(!v||v.cached)return;
+  try {
+    const c=await caches.open(cacheName);
+    const binaryData = Uint8Array.from(atob(v.data), c => c.charCodeAt(0));
+    await c.put('v_'+id,new Response(binaryData));
+    v.cached=true;localStorage.setItem('vf_vids',JSON.stringify(arr));
+    loadVideos();note('📱 Cached for offline','success');updateStats();
+  } catch(e) {
+    note('❌ Cache failed: '+e.message,'error');
+  }
+}
+async function removeCached(id){try{const c=await caches.open(cacheName);await c.delete('v_'+id);}catch{}}
 
-        // Load and display videos
-        function loadVideos() {
-            const videos = JSON.parse(localStorage.getItem('videoflow_videos') || '[]');
-            const gallery = document.getElementById('videoGallery');
-            
-            let filteredVideos = videos;
-            if (currentFilter !== 'All') {
-                filteredVideos = videos.filter(video => video.folder === currentFilter);
-            }
-            
-            if (filteredVideos.length === 0) {
-                gallery.innerHTML = `
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 60px; opacity: 0.8;">
-                        <div style="font-size: 4rem; margin-bottom: 20px;">🎬</div>
-                        <h3 style="margin-bottom: 10px;">कोई videos नहीं मिलीं</h3>
-                        <p>Admin को videos upload करने के लिए login करना होगा।</p>
-                    </div>
-                `;
-                return;
-            }
+/* ====== Download ===== */
+async function download(id){
+ const v=JSON.parse(localStorage.getItem('vf_vids')).find(x=>x.id==id);if(!v)return;
+ let blob;
+ try {
+   if(v.ref?.type==='opfs'){
+     const fh=await root.getFileHandle(v.ref.name);
+     blob=await (await fh.getFile());
+   } else if(v.data) {
+     const binaryData = Uint8Array.from(atob(v.data), c => c.charCodeAt(0));
+     blob=new Blob([binaryData],{type:'video/mp4'});
+   } else {
+     note('❌ Download failed - no data','error');return;
+   }
+   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=v.file;document.body.append(a);a.click();a.remove();
+   setTimeout(()=>URL.revokeObjectURL(a.href),800);
+   note('⬇️ Download started','success');
+ } catch(e) {
+   note('❌ Download failed: '+e.message,'error');
+ }
+}
 
-            gallery.innerHTML = filteredVideos.reverse().map(video => `
-                <div class="video-card ${video.cached ? 'offline-available' : ''}">
-                    ${video.cached ? '<div class="offline-badge">📱 Offline</div>' : ''}
-                    <div class="cache-status ${video.cached ? 'cache-cached' : ''}">${video.cached ? '✅ Cached' : ''}</div>
-                    <video class="video-player" controls preload="metadata" playsinline>
-                        <source src="${video.data}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <div class="video-info">
-                        <h3 class="video-title">${video.title}</h3>
-                        <p class="video-description">${video.description || 'No description available'}</p>
-                        <div class="video-meta">
-                            <span>📅 ${video.uploadDate} ${video.uploadTime || ''}</span>
-                            <span class="folder-tag">${video.folder}</span>
-                        </div>
-                        <div style="font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 15px;">
-                            📁 ${formatFileSize(video.size)}
-                        </div>
-                        <div class="video-actions">
-                            <button class="action-btn btn-download" onclick="downloadVideo('${video.id}')">
-                                💾 Download
-                            </button>
-                            ${!video.cached ? `
-                                <button class="action-btn btn-save-offline" onclick="cacheVideo('${video.id}')">
-                                    📱 Save Offline
-                                </button>
-                            ` : `
-                                <button class="action-btn btn-save-offline" onclick="removeCachedVideo('${video.id}')">
-                                    🗑️ Remove Offline
-                                </button>
-                            `}
-                            ${isAdmin ? `<button class="action-btn btn-delete" onclick="deleteVideo('${video.id}')">🗑️ Delete</button>` : ''}
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
+/* ====== Delete ===== */
+async function removeVid(id){
+ if(!confirm('Delete permanently?'))return;
+ const arr=JSON.parse(localStorage.getItem('vf_vids'));const idx=arr.findIndex(x=>x.id==id);if(idx==-1)return;
+ const v=arr[idx];
+ try {
+   if(v.ref?.type==='opfs')await root.removeEntry(v.ref.name);
+   await removeCached(id);arr.splice(idx,1);localStorage.setItem('vf_vids',JSON.stringify(arr));
+   loadVideos();updateStats();note('🗑️ Deleted successfully','info');
+ } catch(e) {
+   note('❌ Delete failed: '+e.message,'error');
+ }
+}
 
-        // Download video
-        function downloadVideo(videoId) {
-            const videos = JSON.parse(localStorage.getItem('videoflow_videos') || '[]');
-            const video = videos.find(v => v.id == videoId);
-            
-            if (video) {
-                const link = document.createElement('a');
-                link.href = video.data;
-                link.download = video.filename;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                showMessage('⬇️ Download started!', 'success');
-            }
-        }
+/* ====== Stats & Badge ===== */
+function totalBytes(){return JSON.parse(localStorage.getItem('vf_vids')||'[]').reduce((s,v)=>s+(v.size||0),0);}
+function updateStats(){
+ const vids=JSON.parse(localStorage.getItem('vf_vids')||'[]');
+ vCount.textContent=vids.length;
+ cCount.textContent=vids.filter(x=>x.cached).length;
+ usedGB.textContent=format(totalBytes());
+ freeGB.textContent=format(LIM.TOTAL-totalBytes());
+ const p=totalBytes()/LIM.TOTAL*100;usePct.textContent=p.toFixed(0)+'%';barFill.style.width=p+'%';
+ updateBadge(totalBytes(),LIM.TOTAL);
+}
+function updateBadge(u,q){storageBadge.textContent=`💾 Storage ${format(u)} / ${format(q)}`;
+ storageBadge.style.background=pct(u,q)>95?varColor('--grad2'):pct(u,q)>80?varColor('--gradWarn'):varColor('--grad3');}
+function pct(a,b){return a/b*100}
+function varColor(v){return getComputedStyle(document.documentElement).getPropertyValue(v)}
 
-        // Delete video (admin only)
-        function deleteVideo(videoId) {
-            if (!isAdmin) return;
-            
-            if (confirm('Are you sure you want to delete this video?')) {
-                // Remove from cache first
-                removeCachedVideo(videoId);
-                
-                let videos = JSON.parse(localStorage.getItem('videoflow_videos') || '[]');
-                videos = videos.filter(v => v.id != videoId);
-                localStorage.setItem('videoflow_videos', JSON.stringify(videos));
-                showMessage('🗑️ Video deleted successfully!', 'success');
-                loadVideos();
-                updateFolderFilter();
-                updateOfflineStats();
-            }
-        }
+/* ====== Helper ===== */
+function note(txt,cls){msg.innerHTML=`<div class="note ${cls}">${txt}</div>`;setTimeout(()=>msg.innerHTML='',cls==='error'?8000:5000);}
+function format(b){const k=1024,s=['Bytes','KB','MB','GB','TB'];const i=Math.floor(Math.log(b)/Math.log(k));return (b/Math.pow(k,i)).toFixed(2)+' '+s[i];}
+function toggleNet(on){offlineBadge.style.display=on?'none':'block';}
 
-        // Show message
-        function showMessage(message, type) {
-            const messageArea = document.getElementById('messageArea');
-            messageArea.innerHTML = `<div class="message ${type}">${message}</div>`;
-            
-            setTimeout(() => {
-                const messageEl = messageArea.querySelector('.message');
-                if (messageEl) {
-                    messageEl.style.opacity = '0';
-                    messageEl.style.transform = 'translateY(-20px)';
-                    setTimeout(() => messageArea.innerHTML = '', 300);
-                }
-            }, 4000);
-        }
+/* ====== Filter Buttons ===== */
+function buildFilters(){
+ const f=Array.from(new Set(JSON.parse(localStorage.getItem('vf_vids')||'[]').map(v=>v.folder)));
+ fFilter.innerHTML=['All',...f].map(x=>`<button class="filterBtn${x==='All'?' active':''}" onclick="applyFilter(this,'${x}')">${x}</button>`).join('');
+}
+function applyFilter(btn,f){document.querySelectorAll('.filterBtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');filter=f;loadVideos();}
 
-        // Format file size
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
+buildFilters();
 
-        // Refresh video gallery when admin status changes
-        setInterval(() => {
-            const currentAdminStatus = isAdmin;
-            if (window.lastAdminStatus !== currentAdminStatus) {
-                loadVideos();
-                updateOfflineStats();
-                window.lastAdminStatus = currentAdminStatus;
-            }
-        }, 1000);
+/* ====== Service Worker ===== */
+if('serviceWorker' in navigator){
+ navigator.serviceWorker.register(URL.createObjectURL(new Blob([`self.addEventListener('fetch',()=>{})`],{type:'text/javascript'})));
+}
+</script>
 
-        // Auto-update offline stats every 30 seconds
-        setInterval(updateOfflineStats, 30000);
-    </script>
 </body>
 </html>
